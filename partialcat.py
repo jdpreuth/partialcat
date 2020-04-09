@@ -1,4 +1,5 @@
 import argparse
+import string
 
 global rulefile		# Array containing the contents of the passed in rule file
 global wordlist		# Array containing the contents of the passed in wordlist
@@ -13,9 +14,19 @@ def parse_args():
 	rulefile = args.rulefile.read().splitlines()
 	wordlist = args.wordlist.read().splitlines()
 
+def parse(word, rule):
+	func = rule[0]
+	if func == ':':
+		return word
+	else if func == 's':
+		check = rule[1]
+		replace = rule[2]
+	return #string.replace(word, check, replace)
+
 def main():
 	parse_args()
-	print(rulefile)
-	print(wordlist)
+	for word in wordlist:
+		for rule in rulefile:
+			print(parse(word, rule))
 
 main()
