@@ -3,7 +3,6 @@ import string
 
 global rulefile		# Array containing the contents of the passed in rule file
 global wordlist		# Array containing the contents of the passed in wordlist
-global output		# Array containing the genereated wordlist to be outputted
 
 # Parse command line options and read in the rule and word lists
 def parse_args():
@@ -15,7 +14,12 @@ def parse_args():
 	rulefile = args.rulefile.read().splitlines()
 	wordlist = args.wordlist.read().splitlines()
 
-# Function called for rule 's'. Replaces instances of one character with another
+# Function called for rule 's'. Replaces instances of one character with another in a partial, iterative fashion
+# Input:
+#	words: The list of words to which the rule should be applied
+#	check: The character to be replaced
+#	replace: The character to replace the checked character with
+# Output: The list created by partially applying the given rule to the inputted word list
 def funcS(words, check, replace):
 	parsed = []
 	for word in words:
@@ -24,9 +28,12 @@ def funcS(words, check, replace):
 	return parsed
 
 # Main parsing function. Determines the rule to be applied and calls the matching rule functions.
-# Populates global output array with the generated words
+# Input:
+#	word: The word to be processed
+#	rule: The rule to be applied
+# Output: A list of the iterative, partial application of a given rule to a word
 def parse(word, rule):
-	parsed = [word]
+	parsed = [word]		# This seeds the list of words to be parsed. Removed as the final step.
 	i = 0
 	while i < len(rule):
 		func = rule[i]
@@ -39,16 +46,14 @@ def parse(word, rule):
 			replace = rule[i]
 			i += 1
 			parsed.extend(funcS(parsed, check, replace))
-			print(parsed)
-	parsed.pop(0)
+	parsed.pop(0)	# Remove the seed value before returning
+	#print(parsed)	Debug print statement to see each round of parsed words
 	return parsed
 
 def main():
-	global output
-	output = []
-
 	# Parse input arguments and generate the wordlist
 	parse_args()
+	output = []
 	for word in wordlist:
 		for rule in rulefile:
 			output.extend(parse(word, rule))
