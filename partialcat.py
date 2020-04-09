@@ -3,6 +3,7 @@ import string
 
 global rulefile		# Array containing the contents of the passed in rule file
 global wordlist		# Array containing the contents of the passed in wordlist
+global output		# Array containing the genereated wordlist to be outputted
 
 # Parse command line options and read in the rule and word lists
 def parse_args():
@@ -14,28 +15,46 @@ def parse_args():
 	rulefile = args.rulefile.read().splitlines()
 	wordlist = args.wordlist.read().splitlines()
 
-def funcS(word, rule):
-	check = rule[1]
-	replace = rule[2]
-	list = []
-	for i in range(1, word.count(check)+1):
-		list.append(word.replace(check, replace, i))
-	return list
+# Function called for rule 's'. Replaces instances of one character with another
+def funcS(words, check, replace):
+	parsed = []
+	for word in words:
+		for i in range(1, word.count(check)+1):
+			parsed.append(word.replace(check, replace, i))
+	return parsed
 
+# Main parsing function. Determines the rule to be applied and calls the matching rule functions.
+# Populates global output array with the generated words
 def parse(word, rule):
-	print("Apply " + rule + " to " + word)
-	func = rule[0]
-	if func == ':':
-		return word
-	elif func == 's':
-		return funcS(word, rule)
-	return
+	parsed = [word]
+	i = 0
+	while i < len(rule):
+		func = rule[i]
+		i += 1
+		if func == ':':
+			parsed.append(word)
+		elif func == 's':
+			check = rule[i]
+			i += 1
+			replace = rule[i]
+			i += 1
+			parsed.extend(funcS(parsed, check, replace))
+			print(parsed)
+	parsed.pop(0)
+	return parsed
 
 def main():
+	global output
+	output = []
+
+	# Parse input arguments and generate the wordlist
 	parse_args()
 	for word in wordlist:
 		for rule in rulefile:
-			for result in parse(word, rule):
-				print(result)
+			output.extend(parse(word, rule))
+	
+	# Output the generated wordlist
+	for word in output:
+		print(word)
 
 main()
