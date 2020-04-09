@@ -14,19 +14,28 @@ def parse_args():
 	rulefile = args.rulefile.read().splitlines()
 	wordlist = args.wordlist.read().splitlines()
 
+def funcS(word, rule):
+	check = rule[1]
+	replace = rule[2]
+	list = []
+	for i in range(1, word.count(check)+1):
+		list.append(word.replace(check, replace, i))
+	return list
+
 def parse(word, rule):
+	print("Apply " + rule + " to " + word)
 	func = rule[0]
 	if func == ':':
 		return word
-	else if func == 's':
-		check = rule[1]
-		replace = rule[2]
-	return #string.replace(word, check, replace)
+	elif func == 's':
+		return funcS(word, rule)
+	return
 
 def main():
 	parse_args()
 	for word in wordlist:
 		for rule in rulefile:
-			print(parse(word, rule))
+			for result in parse(word, rule):
+				print(result)
 
 main()
