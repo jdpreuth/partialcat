@@ -19,11 +19,19 @@ def parse_args():
 #	check: The character to be replaced
 #	replace: The character to replace the checked character with
 # Output: The list created by partially applying the given rule to the inputted word list
-def funcS(words, check, replace):
+def substitution(words, check, replace):
 	parsed = []
 	for word in words:
 		for i in range(1, word.count(check)+1):
 			parsed.append(word.replace(check, replace, i))
+	return parsed
+
+def uppercase(words):
+	parsed = []
+	for word in words:
+		for i in range(0, len(word)):
+			parsed.append(word[:i].upper() + word[i:].lower())
+			parsed.append(word[:i].lower() + word[i:].upper())
 	return parsed
 
 # Main parsing function. Determines the rule to be applied and calls the matching rule functions.
@@ -44,7 +52,9 @@ def parse(word, rule):
 			i += 1
 			replace = rule[i]
 			i += 1
-			parsed.extend(funcS(parsed, check, replace))
+			parsed.extend(substitution(parsed, check, replace))
+		elif func == 'u':
+			parsed.extend(uppercase(parsed))
 	parsed.pop(0)	# Remove the seed value before returning
 	#print(parsed)	Debug print statement to see each round of parsed words
 	return parsed
