@@ -19,19 +19,32 @@ def parse_args():
 #	check: The character to be replaced
 #	replace: The character to replace the checked character with
 # Output: The list created by partially applying the given rule to the inputted word list
+# EX: apple, sp6 -> a6ple, a66le
 def substitution(words, check, replace):
 	parsed = []
 	for word in words:
 		for i in range(1, word.count(check)+1):
 			parsed.append(word.replace(check, replace, i))
 	return parsed
-
+ 
+# Function called for rule 'u'. Creates all possible uppercase combinations
+# Note: Far from optimized. Produces many duplicates. Run output through sort | uniq to minimize
+# Input:
+#	words: The list of words to apply the rule to
+# Output: The list of words expanded to include all upper case character combinations
+# EX: ate -> ate, atE, aTe, aTE, Ate, AtE, ATE
 def uppercase(words):
 	parsed = []
 	for word in words:
+		toggles = []
+		toggles.append(word)
 		for i in range(0, len(word)):
-			parsed.append(word[:i].upper() + word[i:].lower())
-			parsed.append(word[:i].lower() + word[i:].upper())
+			permutations = []
+			for toggle in toggles:
+				permutations.append(toggle)
+				permutations.append(toggle[:i] + toggle[i].upper() + toggle[(i+1):])
+			toggles.extend(permutations)
+		parsed.extend(toggles)
 	return parsed
 
 # Main parsing function. Determines the rule to be applied and calls the matching rule functions.
