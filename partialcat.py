@@ -1,10 +1,10 @@
 import argparse
 import string
+from itertools import product
 
 # Parse command line options and read in the rule and word lists
 # Output: The rulefile and wordlist as arrays
 def parse_args():
-	#global rulefile, wordlist
 	parser = argparse.ArgumentParser(description='Python utility to create special wordlist based on partial application of hashcat rules')
 	parser.add_argument('rulefile', type=argparse.FileType('r'), help='file name of a hashcat rule file')
 	parser.add_argument('wordlist', type=argparse.FileType('r'), help='file name of the wordlist')
@@ -22,9 +22,9 @@ def parse_args():
 # EX: apple, sp6 -> a6ple, a66le
 def substitution(words, check, replace):
 	parsed = []
+	sub = {check: replace}
 	for word in words:
-		for i in range(1, word.count(check)+1):
-			parsed.append(word.replace(check, replace, i))
+		parsed.extend([''.join(letters) for letters in product(*({c, sub.get(c, c)} for c in word))])
 	return parsed
  
 # Function called for rule 'u'. Creates all possible uppercase combinations
