@@ -50,6 +50,21 @@ def uppercase(words):
 		parsed.update([''.join(letters) for letters in product(*({c, sub.get(c, c)} for c in word))])
 	return parsed
 
+# Function called for rule 'l'. Creates all possible lowercase combinations
+# Input:
+#	words: The list of words to apply the rule to
+# Output: The list of words expanded to include all lowercase character combinations
+# EX: ATE -> ate, atE, aTe, aTE, Ate, AtE, ATE
+def lowercase(words):
+	parsed = set([])
+	for word in words:
+		sub = {}
+		for letter in word:
+			sub.update({letter: letter.lower()})
+		parsed.add(word)
+		parsed.update([''.join(letters) for letters in product(*({c, sub.get(c, c)} for c in word))])
+	return parsed
+
 # Function called for rule 'c'. Capitalizes the first letter of each word in the inputted word list
 # Input:
 #	words: The list of words to apply the rule to
@@ -73,7 +88,7 @@ def parse(word, rule):
 		func = rule[i]
 		i += 1
 		if func == ':':
-			pass # parsed.add(word)
+			pass
 		elif func == 's':
 			check = rule[i]
 			i += 1
@@ -82,10 +97,12 @@ def parse(word, rule):
 			parsed.update(substitution(parsed, check, replace))
 		elif func == 'u':
 			parsed.update(uppercase(parsed))
+		elif func == 'l':
+			parsed.update(lowercase(parsed))
 		elif func == 'c':
 			parsed.update(capital(parsed))
-	#parsed.pop(0)	# Remove the seed value before returning
-	#print(parsed)	Debug print statement to see each round of parsed words
+		else:		# Function isn't currently supported. Skip and continue
+			pass 	
 	return parsed
 
 def main():
