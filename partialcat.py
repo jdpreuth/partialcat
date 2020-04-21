@@ -1,8 +1,8 @@
 #####################################
-# Partialcat						#
-# Desc: Python wordlist creation	#
-# tool based on hashcat rule engine	#
-# Author: Jon Preuth				#
+# Partialcat                        #
+# Desc: Python wordlist creation    #
+# tool based on hashcat rule engine #
+# Author: Jon Preuth                #
 #####################################
 
 import argparse
