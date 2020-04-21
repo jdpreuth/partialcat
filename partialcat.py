@@ -1,3 +1,10 @@
+#####################################
+# Partialcat						#
+# Desc: Python wordlist creation	#
+# tool based on hashcat rule engine	#
+# Author: Jon Preuth				#
+#####################################
+
 import argparse
 import string
 from itertools import product
@@ -13,38 +20,45 @@ def parse_args():
 	wordlist = args.wordlist.read().splitlines()
 	return rulefile, wordlist
 
-# Function called for rule 's'. Replaces instances of one character with another in a partial, iterative fashion
+# Function called for rule 's'. Replaces instances of one character with another for all possible permutations of replacements in that word
 # Input:
 #	words: The list of words to which the rule should be applied
 #	check: The character to be replaced
 #	replace: The character to replace the checked character with
-# Output: The list created by partially applying the given rule to the inputted word list
+# Output: A list containing all possible permutations of a given substitution being applied
 # EX: apple, sp6 -> a6ple, a66le
 def substitution(words, check, replace):
-	parsed = []
-	sub = {check: replace}
+	parsed = set([])
+	sub = {check : replace}
 	for word in words:
-		parsed.extend([''.join(letters) for letters in product(*({c, sub.get(c, c)} for c in word))])
+		parsed.add(word)
+		parsed.update([''.join(letters) for letters in product(*({c, sub.get(c, c)} for c in word))])
 	return parsed
  
 # Function called for rule 'u'. Creates all possible uppercase combinations
-# Note: Far from optimized. Produces many duplicates. Run output through sort | uniq to minimize
 # Input:
 #	words: The list of words to apply the rule to
 # Output: The list of words expanded to include all upper case character combinations
 # EX: ate -> ate, atE, aTe, aTE, Ate, AtE, ATE
 def uppercase(words):
-	parsed = []
+	parsed = set([])
 	for word in words:
-		toggles = []
-		toggles.append(word)
-		for i in range(0, len(word)):
-			permutations = []
-			for toggle in toggles:
-				permutations.append(toggle)
-				permutations.append(toggle[:i] + toggle[i].upper() + toggle[(i+1):])
-			toggles.extend(permutations)
-		parsed.extend(toggles)
+		sub = {}
+		for letter in word:
+			sub.update({letter: letter.upper()})
+		parsed.add(word)
+		parsed.update([''.join(letters) for letters in product(*({c, sub.get(c, c)} for c in word))])
+	return parsed
+
+# Function called for rule 'c'. Capitalizes the first letter of each word in the inputted word list
+# Input:
+#	words: The list of words to apply the rule to
+# Output: The list of words expanded to include the first letter capitlized
+# EX: ate -> Ate
+def capital(words):
+	parsed = set([])
+	for word in words:
+		parsed.add(word.capitalize())
 	return parsed
 
 # Main parsing function. Determines the rule to be applied and calls the matching rule functions.
@@ -53,32 +67,36 @@ def uppercase(words):
 #	rule: The rule to be applied
 # Output: A list of the iterative, partial application of a given rule to a word
 def parse(word, rule):
-	parsed = [word]		# This seeds the list of words to be parsed. Removed as the final step.
+	parsed = set([word])		# This seeds the list of words to be parsed. Removed as the final step.
 	i = 0
 	while i < len(rule):
 		func = rule[i]
 		i += 1
 		if func == ':':
-			parsed.append(word)
+			pass # parsed.add(word)
 		elif func == 's':
 			check = rule[i]
 			i += 1
 			replace = rule[i]
 			i += 1
-			parsed.extend(substitution(parsed, check, replace))
+			parsed.update(substitution(parsed, check, replace))
 		elif func == 'u':
-			parsed.extend(uppercase(parsed))
-	parsed.pop(0)	# Remove the seed value before returning
+			parsed.update(uppercase(parsed))
+		elif func == 'c':
+			parsed.update(capital(parsed))
+	#parsed.pop(0)	# Remove the seed value before returning
 	#print(parsed)	Debug print statement to see each round of parsed words
 	return parsed
 
 def main():
 	# Parse input arguments and generate the wordlist
 	rulefile, wordlist = parse_args()
-	output = []
+	output = set([])
 	for word in wordlist:
+		output.add(word)
 		for rule in rulefile:
-			output.extend(parse(word, rule))
+			output.update(parse(word, rule))
+			#print(output)
 	
 	# Output the generated wordlist
 	for word in output:
