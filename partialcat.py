@@ -268,7 +268,7 @@ def parse(word, rule):
 	return parsed
 
 def main():
-	global IGNORE
+	global IGNORE, OUTPUT
 	# Parse input arguments and generate the wordlist
 	rulefile, wordlist = parse_args()
 	output = set([])
