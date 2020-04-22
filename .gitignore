@@ -1,8 +1,6 @@
-
 rulefile
 wordlist
 *.txt
 *.zip
-*.rule
 theHarvester/
 test.out

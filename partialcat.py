@@ -9,20 +9,24 @@ import argparse
 import string
 from itertools import product
 
+# Optional flags
 global IGNORE
+global OUTPUT
 
 # Parse command line options and read in the rule and word lists
 # Output: The rulefile and wordlist as arrays
 def parse_args():
-	global IGNORE
+	global IGNORE, OUTPUT
 	parser = argparse.ArgumentParser(description='Python utility to create special wordlist based on partial application of hashcat rules')
 	parser.add_argument('rulefile', type=argparse.FileType('r'), help='file name of a hashcat rule file')
 	parser.add_argument('wordlist', type=argparse.FileType('r'), help='file name of the wordlist')
 	parser.add_argument('-i', '--ignore', action="store_true", help='ignore unsupported rules')
+	parser.add_argument('-o', '--output', help='file name to write the output to')
 	args = parser.parse_args()
 	rulefile = args.rulefile.read().splitlines()
 	wordlist = args.wordlist.read().splitlines()
 	IGNORE = args.ignore
+	OUTPUT = args.output
 
 	return rulefile, wordlist
 
@@ -274,7 +278,13 @@ def main():
 			output.update(parse(word, rule))
 	
 	# Output the generated wordlist
-	for word in output:
-		print(word)
+	if not OUTPUT:
+		for word in output:
+			print(word)
+	else:
+		with open(OUTPUT, 'w') as file:
+			for word in output:
+				print(word)
+				file.write(word + '\n')
 
 main()
